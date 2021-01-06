@@ -21,7 +21,7 @@ namespace Simple_DHCP_Server
         static byte localAddress2 = 168;
         static byte localAddress3 = 250;
         static byte deviceIP = 1;
-
+        // Starting address for leases
         static byte leaseStart = 2;
 
         // Local Subnet Address
@@ -127,13 +127,8 @@ namespace Simple_DHCP_Server
                     MACAddress clientMAC = new MACAddress(rxBuffer[28..34]); // take the range of values from 28 (inclusive) to 34 (exclusive) i.e. 6 bytes of MAC address
                     // Find if the item already exists, and/or determine its IP now
                     byte leaseIndex = FindPosByMac(clientMAC, DHCPEntries, maxLeases);
-                    byte clientIP = 0;
-                    if (leaseIndex < 255)
-                    {
-                        // If found, use the client's assigned IP address
-                        clientIP =(byte)(leaseIndex + leaseStart);
-                    }
-                    else
+                    byte clientIP;
+                    if (leaseIndex == 255)
                     {
                         // Not found; search for the next empty MAC and assign 
                         leaseIndex = FindPosByMac(MACAddress.Empty, DHCPEntries, maxLeases);
@@ -141,8 +136,8 @@ namespace Simple_DHCP_Server
                         {
                             return null;
                         }
-                        clientIP = (byte)(leaseIndex + leaseStart);
                     }
+                    clientIP = (byte)(leaseIndex + leaseStart);
                     // The same basic packet structure occurs to all responses:
                     // In context, we're always responding
                     txBuffer[0] = 2;
@@ -272,10 +267,10 @@ namespace Simple_DHCP_Server
                             else if (option.option == 55)
                             {
                                 // Parameter request list
-                                DHCPEntries[clientIP-2].requestedItems = new byte[option.dataLength];
+                                DHCPEntries[clientIP-leaseStart].requestedItems = new byte[option.dataLength];
                                 for (int i = 0; i < option.dataLength; i++)
                                 {
-                                    DHCPEntries[clientIP - 2].requestedItems[i] = option.DHCPData[i];
+                                    DHCPEntries[clientIP - leaseStart].requestedItems[i] = option.DHCPData[i];
                                 }
                             }
                         }
@@ -374,7 +369,6 @@ namespace Simple_DHCP_Server
         /// <returns></returns>
         public static uint millis()
         {
-            TimeSpan elapsed = DateTime.Now.Subtract(Process.GetCurrentProcess().StartTime);
             return (uint)(GetTickCount64() % uint.MaxValue);
         }
 
@@ -471,7 +465,6 @@ namespace Simple_DHCP_Server
                             s.Add((byte)(DNSServers[i] >> 8));
                             s.Add((byte)DNSServers[i]);
                             length += 4;
-
                         }
                     }
                 }
@@ -488,7 +481,7 @@ namespace Simple_DHCP_Server
                 else
                 {
                     // As the time stored in DHCPEntries is in seconds, subtracting the current millis() in seconds
-                    time = DHCPEntries[clientIP - 2].expiry - (millis()/1000);
+                    time = DHCPEntries[clientIP - leaseStart].expiry - (millis()/1000);
                 }
                 s.Add((byte)(time >> 24));
                 s.Add((byte)(time >> 16));
