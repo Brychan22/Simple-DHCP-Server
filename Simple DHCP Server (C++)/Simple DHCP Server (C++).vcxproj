@@ -140,7 +140,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Arduino.cpp" />
+    <ClCompile Include="DHCP.cpp" />
+    <ClCompile Include="Net.cpp" />
     <ClCompile Include="Simple DHCP Server (C++).cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Arduino.h" />
+    <ClInclude Include="DHCP.h" />
+    <ClInclude Include="Net.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
