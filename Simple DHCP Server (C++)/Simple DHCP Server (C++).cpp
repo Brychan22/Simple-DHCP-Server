@@ -33,7 +33,7 @@ int main()
                 }
             }
         }
-        // Artificial delay
-        std::this_thread::sleep_for(std::chrono::milliseconds(2));
+        // Artificial delay, to prevent hyperactive looping
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
 }
