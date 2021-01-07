@@ -69,29 +69,33 @@ void Net::UdpClient::Socket::Bind(unsigned char* IP, unsigned short Port) {
 	Bind(ep);
 }
 
-std::vector<unsigned char> Net::UdpClient::Recieve(IPEndPoint* remote, unsigned short BufferSize) {
-	std::vector<unsigned char> recievedBytes;
+unsigned char* Net::UdpClient::Recieve(IPEndPoint* remote, unsigned short BufferSize) {
 	char* buffer = new char[BufferSize];
-	// As recvfrom is blocking, this space must be reserved in memory pretty much at all times(typically 1480 bytes)
 	int remoteSize = sizeof(remote->socks);
 	int r = recvfrom(Client.sock, buffer, BufferSize, 0, (SOCKADDR*)&remote->socks, &remoteSize);
-	if (r > 0) {
-		recievedBytes.resize(r);
-		for (int i = 0; i < r; i++)
-		{
-			recievedBytes[i] = buffer[i];
-		}
-	}
-	delete[] buffer;
-	return recievedBytes;
+	return (unsigned char*)buffer;
 }
-int Net::UdpClient::Send(std::vector<unsigned char> Datagram, int dGramSize, IPEndPoint ep) {
-	return sendto(Client.sock, (char*)Datagram.data(), dGramSize, 0, (SOCKADDR*)&ep.socks, sizeof(ep.socks));
+int Net::UdpClient::Send(char* Datagram, short DatagramSize, IPEndPoint ep) {
+	return sendto(Client.sock, Datagram, DatagramSize, 0, (SOCKADDR*)&ep.socks, sizeof(ep.socks));
 }
 
-int Net::UdpClient::Send(std::vector<unsigned char> Datagram, int dGramSize, std::vector<unsigned char> DestinationIP, int DestPort) {
+int Net::UdpClient::Send(std::vector<unsigned char> Datagram, IPEndPoint ep) {
+	return Send((char*)Datagram.data(), Datagram.size(), ep);
+}
+
+int Net::UdpClient::Send(std::vector<unsigned char> Datagram, std::vector<unsigned char> DestinationIP, int DestPort) {
 	IPEndPoint ep = IPEndPoint(DestinationIP.data(), (u_short)DestPort);
-	return Send(Datagram, dGramSize, ep);
+	return Send(Datagram, ep);
+}
+
+int Net::UdpClient::Available()
+{
+	unsigned long availableBytes = 0;
+	int result = ioctlsocket(Client.sock, FIONREAD, &availableBytes);
+	if (result != 0) {
+		// Error occured
+	}
+	return availableBytes;
 }
 
 Net::MACAddress::MACAddress(unsigned char c1, unsigned char c2, unsigned char c3, unsigned char c4, unsigned char c5, unsigned char c6)

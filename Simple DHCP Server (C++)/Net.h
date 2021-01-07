@@ -44,10 +44,23 @@ public:
 		Socket Client;
 		UdpClient();
 
-		std::vector<unsigned char> Recieve(IPEndPoint* remote, unsigned short BufferSize = 1480);
-		int Send(std::vector<unsigned char> Datagram, int dGramSize, IPEndPoint ep);
+		unsigned char* Recieve(IPEndPoint* remote, unsigned short BufferSize = 1480);
+		int Send(char* Datagram, short DatagramSize, IPEndPoint ep);
 
-		int Send(std::vector<unsigned char> Datagram, int dGramSize, std::vector<unsigned char> DestinationIP, int DestPort);
+		int Send(std::vector<unsigned char> Datagram, IPEndPoint ep);
+		/// <summary>
+		/// Sends the data in Datagram to the destination IP address &amp; port.
+		/// </summary>
+		/// <param name="Datagram">A std::vector&lt;u_char&gt; of the data to be sent</param>
+		/// <param name="DestinationIP">The destination IP address (Little Endian)</param>
+		/// <param name="DestPort">The destination port (Little Endian)</param>
+		/// <returns>A value less than zero if an error occured</returns>
+		int Send(std::vector<unsigned char> Datagram, std::vector<unsigned char> DestinationIP, int DestPort);
+		/// <summary>
+		/// Gets the amount of bytes available, or zero if no connection is yet available
+		/// </summary>
+		/// <returns></returns>
+		int Available();
 	};
 
 	struct MACAddress {

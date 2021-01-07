@@ -3,6 +3,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <thread>
 #include "Net.h"
 #include "DHCP.h"
 
@@ -18,17 +19,21 @@ int main()
     Net::UdpClient udpClient = Net::UdpClient();
     udpClient.Client.Bind(Net::IPEndPoint(new unsigned char[] {dhcp.localAddress1, dhcp.localAddress2, dhcp.localAddress3, dhcp.deviceIP}, 67));
     Net::IPEndPoint remote = Net::IPEndPoint(new unsigned char[] {0, 0, 0, 0}, 0);
+    unsigned long waitingBytes = 0;
     while (true) {
-        std::vector<unsigned char> buffer = udpClient.Recieve(&remote, 1480);
-        std::vector<std::vector<unsigned char>> result = dhcp.ProcessDHCP(buffer);
-        if (result.size() == 2) {
-            if (remote.Address.Equals(Net::IPAddress::Empty())) {
-                udpClient.Send(result[1], result[1].size(), result[0], 68);
-            }
-            else {
-                udpClient.Send(result[1], result[1].size(), remote);
+        waitingBytes = udpClient.Available();
+        if (waitingBytes > 240) { // DHCP requires *at least* 240 bytes, the packet is malformed or incorrect if it is less
+            std::vector<std::vector<unsigned char>> result = dhcp.ProcessDHCP(udpClient.Recieve(&remote, waitingBytes), waitingBytes);
+            if (result.size() == 2) {
+                if (remote.Address.Equals(Net::IPAddress::Empty())) {
+                    udpClient.Send(result[1], result[0], 68);
+                }
+                else {
+                    udpClient.Send(result[1], remote);
+                }
             }
         }
-        
+        // Artificial delay
+        std::this_thread::sleep_for(std::chrono::milliseconds(2));
     }
 }

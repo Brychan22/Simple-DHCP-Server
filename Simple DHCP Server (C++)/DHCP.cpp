@@ -102,14 +102,14 @@ unsigned char DHCP::FindPosByMac(Net::MACAddress MAC, DHCP::DHCPEntry* entries, 
 
 
 
-std::vector<std::vector<unsigned char>> DHCP::ProcessDHCP(std::vector<unsigned char> rxBuffer) {
+std::vector<std::vector<unsigned char>> DHCP::ProcessDHCP(unsigned char* rxBuffer, unsigned long bufferLength) {
     unsigned char txBuffer[Net::TYPICAL_MTU] = {}; // ensure we have base zeros
     u_long destAddress = ULLONG_MAX;
     if (rxBuffer[236] == DHCP::MAGIC_COOKIE[0] && rxBuffer[237] == DHCP::MAGIC_COOKIE[1] && rxBuffer[238] == DHCP::MAGIC_COOKIE[2] && rxBuffer[239] == DHCP::MAGIC_COOKIE[3]) {
         unsigned int position = 240;
         // Find all options
         std::vector<DHCP::DHCPOption> RXOptions;
-        while (rxBuffer[position] != 0xFF && position < Net::TYPICAL_MTU) {
+        while (rxBuffer[position] != 0xFF && position < bufferLength) {
             unsigned char option = rxBuffer[position++];
             unsigned char dataLength = rxBuffer[position++];
             DHCP::DHCPOption newOption = DHCP::DHCPOption();
@@ -124,7 +124,7 @@ std::vector<std::vector<unsigned char>> DHCP::ProcessDHCP(std::vector<unsigned c
         }
         // Check first option is DHCP
         if (RXOptions[0].option == 53) {
-            Net::MACAddress clientMAC = Net::MACAddress((rxBuffer.data() + 28));
+            Net::MACAddress clientMAC = Net::MACAddress((rxBuffer + 28));
             unsigned char leaseIndex = DHCP::FindPosByMac(clientMAC, DHCPEntries, maxLeases);
             unsigned char clientIP;
             if (leaseIndex == 255) {
@@ -146,7 +146,7 @@ std::vector<std::vector<unsigned char>> DHCP::ProcessDHCP(std::vector<unsigned c
                 txBuffer[i] = rxBuffer[i];
             }
             // Clear the rxBuffer, we have read all we need
-            rxBuffer.clear();
+            delete[] rxBuffer;
 
             txBuffer[16] = localAddress1;
             txBuffer[17] = localAddress2;

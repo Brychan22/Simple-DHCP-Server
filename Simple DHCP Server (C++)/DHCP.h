@@ -50,7 +50,7 @@ public:
 
     std::vector<unsigned char> Generate_DHCP_Option(unsigned char option, unsigned char clientIP);
 
-    std::vector<std::vector<unsigned char>> ProcessDHCP(std::vector<unsigned char> rxBuffer);
+    std::vector<std::vector<unsigned char>> ProcessDHCP(unsigned char* rxBuffer, unsigned long bufferLength);
 
     DHCP(unsigned char* deviceAddress, unsigned char* subnetMask, unsigned char maxLeases, unsigned char leaseStart, unsigned int leaseTime, unsigned int* dnsServers, unsigned char dnsServerCount);
     ~DHCP();
