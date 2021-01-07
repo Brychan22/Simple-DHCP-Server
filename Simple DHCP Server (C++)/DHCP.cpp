@@ -50,14 +50,14 @@ std::vector<unsigned char> DHCP::Generate_DHCP_Option(unsigned char option, unsi
     }
     else if (option == 6) {
         if (DNSServers.size() > 0) {
-            for (size_t i = 0; i < DNSServers.size(); i++)
+            for (unsigned int i = 0; i < DNSServers.size(); i++)
             {
                 if (DNSServers[i] != 0)
                 {
-                    s.push_back((size_t)(DNSServers[i] >> 24));
-                    s.push_back((size_t)(DNSServers[i] >> 16));
-                    s.push_back((size_t)(DNSServers[i] >> 8));
-                    s.push_back((size_t)DNSServers[i]);
+                    s.push_back((unsigned char)(DNSServers[i] >> 24));
+                    s.push_back((unsigned char)(DNSServers[i] >> 16));
+                    s.push_back((unsigned char)(DNSServers[i] >> 8));
+                    s.push_back((unsigned char)DNSServers[i]);
                     length += 4;
                 }
             }
@@ -91,7 +91,7 @@ std::vector<unsigned char> DHCP::Generate_DHCP_Option(unsigned char option, unsi
 }
 
 unsigned char DHCP::FindPosByMac(Net::MACAddress MAC, DHCP::DHCPEntry* entries, unsigned char entries_size) {
-    for (size_t i = 0; i < entries_size; i++)
+    for (unsigned char i = 0; i < entries_size; i++)
     {
         if (entries[i].MAC.equals(MAC)) {
             return i;
@@ -104,7 +104,7 @@ unsigned char DHCP::FindPosByMac(Net::MACAddress MAC, DHCP::DHCPEntry* entries, 
 
 std::vector<std::vector<unsigned char>> DHCP::ProcessDHCP(unsigned char* rxBuffer, unsigned long bufferLength) {
     unsigned char txBuffer[Net::TYPICAL_MTU] = {}; // ensure we have base zeros
-    u_long destAddress = ULLONG_MAX;
+    u_long destAddress = 0xFFFFFFFF;
     if (rxBuffer[236] == DHCP::MAGIC_COOKIE[0] && rxBuffer[237] == DHCP::MAGIC_COOKIE[1] && rxBuffer[238] == DHCP::MAGIC_COOKIE[2] && rxBuffer[239] == DHCP::MAGIC_COOKIE[3]) {
         unsigned int position = 240;
         // Find all options
@@ -303,6 +303,7 @@ std::vector<std::vector<unsigned char>> DHCP::ProcessDHCP(unsigned char* rxBuffe
         
         return std::vector<std::vector<unsigned char>> {std::vector<unsigned char> {(unsigned char)(destAddress >> 24), (unsigned char)(destAddress >> 16), (unsigned char)(destAddress >> 8), (unsigned char)destAddress}, returnBuffer};
     }
+    return std::vector<std::vector<unsigned char>>(0);
 }
 DHCP::DHCP(unsigned char* deviceAddress, unsigned char* subnetMask, unsigned char maxLeases, unsigned char leaseStart, unsigned int leaseTime, unsigned int* dnsServers, unsigned char dnsServerCount) {
     localAddress1 = deviceAddress[0];

@@ -23,7 +23,7 @@ int main()
     while (true) {
         waitingBytes = udpClient.Available();
         if (waitingBytes > 240) { // DHCP requires *at least* 240 bytes, the packet is malformed or incorrect if it is less
-            std::vector<std::vector<unsigned char>> result = dhcp.ProcessDHCP(udpClient.Recieve(&remote, waitingBytes), waitingBytes);
+            std::vector<std::vector<unsigned char>> result = dhcp.ProcessDHCP(udpClient.Recieve(&remote, (unsigned short)waitingBytes), waitingBytes);
             if (result.size() == 2) {
                 if (remote.Address.Equals(Net::IPAddress::Empty())) {
                     udpClient.Send(result[1], result[0], 68);

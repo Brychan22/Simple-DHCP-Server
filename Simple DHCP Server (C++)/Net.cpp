@@ -80,7 +80,7 @@ int Net::UdpClient::Send(char* Datagram, short DatagramSize, IPEndPoint ep) {
 }
 
 int Net::UdpClient::Send(std::vector<unsigned char> Datagram, IPEndPoint ep) {
-	return Send((char*)Datagram.data(), Datagram.size(), ep);
+	return Send((char*)Datagram.data(), (short)Datagram.size(), ep);
 }
 
 int Net::UdpClient::Send(std::vector<unsigned char> Datagram, std::vector<unsigned char> DestinationIP, int DestPort) {
