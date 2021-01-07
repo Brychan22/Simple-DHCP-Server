@@ -73,14 +73,14 @@ unsigned char* Net::UdpClient::Recieve(IPEndPoint* remote, unsigned short Buffer
 	char* buffer = new char[BufferSize];
 	int remoteSize = sizeof(remote->socks);
 	int r = recvfrom(Client.sock, buffer, BufferSize, 0, (SOCKADDR*)&remote->socks, &remoteSize);
-	return (unsigned char*)buffer;
+	return reinterpret_cast<unsigned char*>(buffer);
 }
 int Net::UdpClient::Send(char* Datagram, short DatagramSize, IPEndPoint ep) {
 	return sendto(Client.sock, Datagram, DatagramSize, 0, (SOCKADDR*)&ep.socks, sizeof(ep.socks));
 }
 
 int Net::UdpClient::Send(std::vector<unsigned char> Datagram, IPEndPoint ep) {
-	return Send((char*)Datagram.data(), (short)Datagram.size(), ep);
+	return Send(reinterpret_cast<char*>(Datagram.data()), (short)Datagram.size(), ep);
 }
 
 int Net::UdpClient::Send(std::vector<unsigned char> Datagram, std::vector<unsigned char> DestinationIP, int DestPort) {
