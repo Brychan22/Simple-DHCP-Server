@@ -305,16 +305,16 @@ std::vector<std::vector<unsigned char>> DHCP::ProcessDHCP(unsigned char* rxBuffe
     }
     return std::vector<std::vector<unsigned char>>(0);
 }
-DHCP::DHCP(unsigned char* deviceAddress, unsigned char* subnetMask, unsigned char maxLeases, unsigned char leaseStart, unsigned int leaseTime, unsigned int* dnsServers, unsigned char dnsServerCount) {
-    localAddress1 = deviceAddress[0];
-    localAddress2 = deviceAddress[1];
-    localAddress3 = deviceAddress[2];
-    deviceIP = deviceAddress[3];
+DHCP::DHCP(unsigned long deviceAddress, unsigned long subnetMask, unsigned char maxLeases, unsigned char leaseStart, unsigned int leaseTime, std::vector<unsigned long> dnsServers, unsigned char dnsServerCount) {
+    localAddress1 = (deviceAddress >> 24) & 0xFF;
+    localAddress2 = (deviceAddress >> 16) & 0xFF;
+    localAddress3 = (deviceAddress >> 8) & 0xFF;
+    deviceIP = deviceAddress & 0xFF;
 
-    localSubnet1 = subnetMask[0];
-    localSubnet2 = subnetMask[1];
-    localSubnet3 = subnetMask[2];
-    localSubnet4 = subnetMask[3];
+    localSubnet1 = (subnetMask >> 24) & 0xFF;
+    localSubnet2 = (subnetMask >> 16) & 0xFF;
+    localSubnet3 = (subnetMask >> 8) & 0xFF;
+    localSubnet4 = subnetMask & 0xFF;
 
     this->maxLeases = maxLeases;
     this->leaseStart = leaseStart;

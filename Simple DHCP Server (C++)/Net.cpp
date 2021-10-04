@@ -13,11 +13,11 @@ Net::IPAddress::IPAddress(unsigned char c1, unsigned char c2, unsigned char c3, 
 	address[3] = c4;
 }
 
-Net::IPAddress::IPAddress(unsigned char* IP) {
-	address[0] = *IP;
-	address[1] = *(IP + 1);
-	address[2] = *(IP + 2);
-	address[3] = *(IP + 3);
+Net::IPAddress::IPAddress(unsigned long IP) {
+	address[0] = IP & 0xFF;
+	address[1] = (IP >> 8) & 0xFF;
+	address[2] = (IP >> 16) & 0xFF;
+	address[3] = (IP >> 24) & 0xFF;
 }
 
 Net::IPAddress Net::IPAddress::Empty() {
@@ -34,10 +34,10 @@ bool Net::IPAddress::Equals(IPAddress other) {
 	return true;
 }
 
-Net::IPEndPoint::IPEndPoint(unsigned char* IP, unsigned short Port) {
+Net::IPEndPoint::IPEndPoint(unsigned long IP, unsigned short Port) {
 	Address = IPAddress(IP);
 	socks.sin_family = AF_INET;
-	socks.sin_addr.S_un.S_addr = (IP[3] << 24) | (IP[2] << 16) | (IP[1] << 8) | IP[0]; // Order of the IP bytes is swapped, so 192.168.1.32 would be 32.1.168.192
+	socks.sin_addr.S_un.S_addr = IP; // Order of the IP bytes is swapped, so 192.168.1.32 would be 32.1.168.192
 	socks.sin_port = htons(Port); // Likewise, the port is also byte-order reversed.
 }
 
@@ -64,7 +64,7 @@ void Net::UdpClient::Socket::Bind(IPEndPoint ep) {
 	setsockopt(sock, SOL_SOCKET, SO_BROADCAST, (char*)&broadcast, sizeof broadcast);
 }
 
-void Net::UdpClient::Socket::Bind(unsigned char* IP, unsigned short Port) {
+void Net::UdpClient::Socket::Bind(unsigned long IP, unsigned short Port) {
 	IPEndPoint ep = IPEndPoint(IP, Port);
 	Bind(ep);
 }
@@ -84,7 +84,9 @@ int Net::UdpClient::Send(std::vector<unsigned char> Datagram, IPEndPoint ep) {
 }
 
 int Net::UdpClient::Send(std::vector<unsigned char> Datagram, std::vector<unsigned char> DestinationIP, int DestPort) {
-	IPEndPoint ep = IPEndPoint(DestinationIP.data(), (u_short)DestPort);
+	unsigned char* dataStart = DestinationIP.data();
+	unsigned long result = (*(dataStart+3) << 24) | (*(dataStart + 2) << 16 ) | (*(dataStart + 1) << 8) | *dataStart; // Merge the bytes into a single long
+	IPEndPoint ep = IPEndPoint(result, (u_short)DestPort);
 	return Send(Datagram, ep);
 }
 

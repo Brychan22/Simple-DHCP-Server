@@ -17,7 +17,7 @@ public:
 		IPAddress();
 		IPAddress(unsigned char c1, unsigned char c2, unsigned char c3, unsigned char c4);
 
-		IPAddress(unsigned char* IP);
+		IPAddress(unsigned long IP);
 
 		static IPAddress Empty();
 
@@ -28,7 +28,7 @@ public:
 		struct sockaddr_in socks;
 		IPAddress Address;
 
-		IPEndPoint(unsigned char* IP, unsigned short Port);
+		IPEndPoint(unsigned long IP, unsigned short Port);
 	};
 
 	class UdpClient {
@@ -37,7 +37,7 @@ public:
 			SOCKET sock;
 			void Bind(IPEndPoint ep);
 
-			void Bind(unsigned char* IP, unsigned short Port);
+			void Bind(unsigned long IP, unsigned short Port);
 		};
 
 	public:

@@ -52,7 +52,7 @@ public:
 
     std::vector<std::vector<unsigned char>> ProcessDHCP(unsigned char* rxBuffer, unsigned long bufferLength);
 
-    DHCP(unsigned char* deviceAddress, unsigned char* subnetMask, unsigned char maxLeases, unsigned char leaseStart, unsigned int leaseTime, unsigned int* dnsServers, unsigned char dnsServerCount);
+    DHCP(unsigned long deviceAddress, unsigned long subnetMask, unsigned char maxLeases, unsigned char leaseStart, unsigned int leaseTime, std::vector<unsigned long> dnsServers, unsigned char dnsServerCount);
     ~DHCP();
 };
 
